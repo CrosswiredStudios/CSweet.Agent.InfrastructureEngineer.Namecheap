@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/CSweet.Agent.InfrastructureEngineer.Namecheap/CSweet.Agent.InfrastructureEngineer.Namecheap.csproj" />
+  <Project Path="tests/CSweet.Agent.InfrastructureEngineer.Namecheap.Tests/CSweet.Agent.InfrastructureEngineer.Namecheap.Tests.csproj" />
+</Solution>

@@ -1,0 +1,99 @@
+{
+  "$schema": "https://raw.githubusercontent.com/CrosswiredStudios/CSweetAgentSdk/main/schemas/csweet-plugin.v2.schema.json",
+  "manifestVersion": "2.0", "kind": "agent",
+  "id": "com.csweet.infrastructure-engineer.namecheap", "name": "Namecheap Infrastructure Engineer", "version": "0.1.0",
+  "publisher": { "id": "com.csweet", "name": "C-Sweet" },
+  "rolePolicy": { "profile": "individual-contributor.v1", "declaredRoleKeys": ["infrastructure-engineer"], "specializationKeys": ["namecheap"] },
+  "runtime": { "type": "dotnet-project", "projectPath": "src/CSweet.Agent.InfrastructureEngineer.Namecheap/CSweet.Agent.InfrastructureEngineer.Namecheap.csproj", "targetFramework": "net10.0", "defaultActivationMode": "Scheduled", "defaultTickFrequencySeconds": 86400, "supportsMultipleInstallations": true, "maximumConcurrentJobs": 1, "workspaceAccess": "None" },
+  "protocol": { "minimumVersion": "2.0", "maximumVersion": "2.x" },
+  "provides": [
+    { "name": "assistant.converse.v1", "description": "Runs the resumable Namecheap bootstrap and operations conversation.", "inputSchema": { "type": "object", "properties": { "input": { "type": "string", "minLength": 1 } }, "required": ["input"], "additionalProperties": false }, "outputSchema": { "type": "object", "additionalProperties": true }, "executionTimeoutSeconds": 300, "idempotency": "work-item", "riskClass": "standard" },
+    { "name": "management.check-in.v1", "description": "Reports deterministic runtime health.", "inputSchema": { "type": "object" }, "outputSchema": { "type": "object" }, "executionTimeoutSeconds": 30, "idempotency": "none", "riskClass": "standard" },
+    { "name": "agent.configuration.describe.v1", "description": "Describes platform-owned Namecheap settings and secure forms.", "inputSchema": { "type": "object" }, "outputSchema": { "type": "object" }, "executionTimeoutSeconds": 30, "idempotency": "none", "riskClass": "standard" },
+    { "name": "agent.configuration.update.v1", "description": "Validates platform-owned settings updates.", "inputSchema": { "type": "object" }, "outputSchema": { "type": "object" }, "executionTimeoutSeconds": 30, "idempotency": "caller-key", "riskClass": "standard" }
+  ],
+  "requires": [
+    { "name": "platform.infrastructure.environment.read.v1", "purpose": "Open the canonical Namecheap environment." },
+    { "name": "platform.infrastructure.state.write.v1", "purpose": "Persist desired and observed state revisions." },
+    { "name": "platform.infrastructure.change.propose.v1", "purpose": "Create exact hash-bound provider change approvals." },
+    { "name": "platform.infrastructure.change.read.v1", "purpose": "Resume pending and completed changes." },
+    { "name": "platform.infrastructure.operation.execute.v1", "purpose": "Read receipts or execute already-approved changes." },
+    { "name": "platform.infrastructure.reconcile.v1", "purpose": "Perform deterministic weekly due checks and reconciliation." },
+    { "name": "platform.infrastructure.deployment-contract.publish.v1", "purpose": "Publish the future deployment-agent handoff." },
+    { "name": "platform.infrastructure.file-transfer.v1", "purpose": "Use path-confined, host-key-pinned SFTP." },
+    { "name": "work.personal-todo.read.v1", "purpose": "Resume personal infrastructure work." },
+    { "name": "work.personal-todo.claim.v1", "purpose": "Claim restart-safe infrastructure work." },
+    { "name": "work.personal-todo.complete.v1", "purpose": "Complete verified infrastructure work." },
+    { "name": "work.personal-todo.block.v1", "purpose": "Block on user or provider intervention." },
+    { "name": "work.personal-todo.release.v1", "purpose": "Release interrupted work." },
+    { "name": "web.fetch.v1", "purpose": "Read allowlisted official Namecheap hosting pricing and guidance." }
+  ],
+  "events": { "subscribes": ["com.csweet.agent.onboarded.v1", "com.csweet.work.personal-todo.available.v1"] },
+  "configuration": [
+    { "key": "llmProvider", "type": "llmprovider", "label": "Language model provider", "required": true },
+    { "key": "llmModel", "type": "llmmodel", "label": "Language model", "required": true, "dependsOnFieldKey": "llmProvider" },
+    { "key": "businessDisplayName", "type": "text", "label": "Business display name", "required": true },
+    { "key": "preferredDomains", "type": "textarea", "label": "Preferred domains", "required": true },
+    { "key": "hostingNeeds", "type": "select", "label": "Hosting needs", "required": true, "defaultValue": "starter", "options": [{"value":"starter","label":"Coming Soon page"},{"value":"small-site","label":"Small business website"},{"value":"multi-site","label":"Multiple websites"}] },
+    { "key": "expectedTraffic", "type": "select", "label": "Expected traffic", "required": true, "defaultValue": "low", "options": [{"value":"low","label":"Low"},{"value":"medium","label":"Medium"},{"value":"high","label":"High"}] },
+    { "key": "emailNeeded", "type": "boolean", "label": "Business email needed", "required": true, "defaultValue": false },
+    { "key": "maximumInitialBudget", "type": "number", "label": "Maximum initial budget (USD)", "required": true, "minimum": 1, "maximum": 100000, "step": 1, "defaultValue": 100 },
+    { "key": "autoRenew", "type": "boolean", "label": "Enable auto-renew", "required": true, "defaultValue": true },
+    { "key": "starterMessage", "type": "textarea", "label": "Coming Soon message", "required": false, "defaultValue": "We are building something useful. Please check back soon." },
+    { "key": "hostingPlan", "type": "select", "label": "Shared Hosting plan", "required": true, "defaultValue": "Stellar", "options": [{"value":"Stellar","label":"Stellar"},{"value":"Stellar Plus","label":"Stellar Plus"},{"value":"Stellar Business","label":"Stellar Business"}] },
+    { "key": "hostingHost", "type": "text", "label": "Namecheap Shared Hosting hostname", "required": false },
+    { "key": "hostingIPv4", "type": "text", "label": "Namecheap Shared Hosting IPv4", "required": false },
+    { "key": "approvalMode", "type": "select", "label": "Approval route", "required": true, "defaultValue": "CEO Approval", "options": [{"value":"CEO Approval","label":"CEO approval"}] },
+    { "key": "namecheap-contact", "type": "secret", "label": "Registration contact JSON", "required": false, "secret": true },
+    { "key": "namecheap-api", "type": "secret", "label": "Legacy Namecheap API JSON", "required": false, "secret": true },
+    { "key": "namecheap-sftp", "type": "secret", "label": "Namecheap SFTP JSON", "required": false, "secret": true }
+  ],
+  "credentials": [
+    { "name": "namecheap-api", "type": "structured-secret", "allowedOrigins": ["https://api.namecheap.com", "https://api.sandbox.namecheap.com"] },
+    { "name": "namecheap-sftp", "type": "username-password-host-key", "allowedOrigins": [] },
+    { "name": "namecheap-hosting-checkout", "type": "hosted-consent", "allowedOrigins": ["https://www.namecheap.com"] },
+    { "name": "public-site-verifier", "type": "none", "allowedOrigins": [] }
+  ],
+  "connections": [{ "id": "namecheap-mcp", "type": "oauth2", "providerProfile": "com.namecheap.mcp", "allowedOrigins": ["https://mcp.namecheap.com"], "secretResponseFields": ["/consentUrl"], "scopeSets": [{ "id": "complete-domain-surface", "label": "Namecheap domain, contact, nameserver, and DNS tools", "purpose": "Request the complete documented Namecheap MCP surface; every write still requires a separate C-Sweet approval.", "required": true, "scopes": ["contacts_save","contacts_get","domains_list","domains_check_availability","domain_purchase_link","domain_set_contacts","domain_set_nameservers","dns_records_get","dns_records_save","dns_records_delete"] }] }],
+  "mcpServers": [{ "id": "namecheap", "endpoint": "https://mcp.namecheap.com/mcp", "transport": "streamable-http", "connection": "namecheap-mcp", "protocolVersions": ["2025-06-18"], "tools": [
+    {"capability":"namecheap.mcp.contacts-save.v1","remoteName":"contacts_save","description":"Save a registration contact.","inputSchema":{"type":"object"},"outputSchema":{"type":"object"},"descriptorHash":"bfbcb7234517e8bd2176fad4f4ba3c7ee189d8e1269e479f22402ea369a20e51","effect":"security-sensitive-write"},
+    {"capability":"namecheap.mcp.contacts-get.v1","remoteName":"contacts_get","description":"Read a saved contact.","inputSchema":{"type":"object"},"outputSchema":{"type":"object"},"descriptorHash":"a886422b15bb70e4af6d5f158622337ecc0dba9c9b7a1d46d12a5ca6207f7d0f","effect":"read"},
+    {"capability":"namecheap.mcp.domains-list.v1","remoteName":"domains_list","description":"List or verify owned domains.","inputSchema":{"type":"object"},"outputSchema":{"type":"object"},"descriptorHash":"7a45629341943c2a9bf1e11f6b398229c3f85a0e52c88e50df46d8f8f96b4036","effect":"read"},
+    {"capability":"namecheap.mcp.domains-check-availability.v1","remoteName":"domains_check_availability","description":"Check availability and current registration price.","inputSchema":{"type":"object"},"outputSchema":{"type":"object"},"descriptorHash":"d78ae4b2d479def4492538e45e8c14926c22fdc70ac2d45fd7f42fa7f1646c9c","effect":"read"},
+    {"capability":"namecheap.mcp.domain-purchase-link.v1","remoteName":"domain_purchase_link","description":"Create a hosted consent checkout link; charges nothing.","inputSchema":{"type":"object"},"outputSchema":{"type":"object"},"descriptorHash":"49d242d90974febab0174a4cd3bc77e23a9aef4dd1e38002eef748f613182c20","effect":"fiscal-write"},
+    {"capability":"namecheap.mcp.domain-set-contacts.v1","remoteName":"domain_set_contacts","description":"Assign approved contacts to a domain.","inputSchema":{"type":"object"},"outputSchema":{"type":"object"},"descriptorHash":"a448335caa1600439fbd683e6dade4c437c5f382277e69055734d0b94a237cd5","effect":"security-sensitive-write"},
+    {"capability":"namecheap.mcp.domain-set-nameservers.v1","remoteName":"domain_set_nameservers","description":"Set approved domain nameservers.","inputSchema":{"type":"object"},"outputSchema":{"type":"object"},"descriptorHash":"3d04073d65695fa9dddf753c439cfe3bdb454a5505c186623182302ad9a0fb77","effect":"write"},
+    {"capability":"namecheap.mcp.dns-records-get.v1","remoteName":"dns_records_get","description":"Read all representable DNS records and omissions.","inputSchema":{"type":"object"},"outputSchema":{"type":"object"},"descriptorHash":"b1489443e91f1c7872d8d7fbb782a66bcd6c77d4a9b75d262e41b164eb62ab37","effect":"read"},
+    {"capability":"namecheap.mcp.dns-records-save.v1","remoteName":"dns_records_save","description":"Save exact approved DNS records without force.","inputSchema":{"type":"object"},"outputSchema":{"type":"object"},"descriptorHash":"a2721d9ae04b18bcc3072a45650bf34bbe8c990d16190cf7f2723b8d98d212e9","effect":"write"},
+    {"capability":"namecheap.mcp.dns-records-delete.v1","remoteName":"dns_records_delete","description":"Delete exact approved DNS records.","inputSchema":{"type":"object"},"outputSchema":{"type":"object"},"descriptorHash":"0a025f597dd7a3649bf86cc4c2e7f1ab06c9324e43c711fbc43333e6d7f1a7a7","effect":"security-sensitive-write"}
+  ] }],
+  "providerOperations": [
+    {"capability":"namecheap.hosting.checkout-handoff.v1","providerProfile":"com.namecheap.hosted-checkout","command":"hosted-checkout","productionEndpoint":"https://www.namecheap.com/hosting/shared/","credential":"namecheap-hosting-checkout","inputSchema":{"type":"object"},"outputSchema":{"type":"object"},"effect":"fiscal-write","idempotency":"caller-key"},
+    {"capability":"namecheap.public-site.verify.v1","providerProfile":"com.csweet.public-site-verifier","command":"https-marker-check","productionEndpoint":"https://www.namecheap.com/","credential":"public-site-verifier","inputSchema":{"type":"object"},"outputSchema":{"type":"object"},"effect":"read","idempotency":"none"},
+    {"capability":"namecheap.api.domains-create.v1","providerProfile":"com.namecheap.legacy-api","command":"namecheap.domains.create","productionEndpoint":"https://api.namecheap.com/xml.response","sandboxEndpoint":"https://api.sandbox.namecheap.com/xml.response","credential":"namecheap-api","inputSchema":{"type":"object"},"outputSchema":{"type":"object"},"effect":"fiscal-write","idempotency":"caller-key"},
+    {"capability":"namecheap.api.domains-get-list.v1","providerProfile":"com.namecheap.legacy-api","command":"namecheap.domains.getList","productionEndpoint":"https://api.namecheap.com/xml.response","sandboxEndpoint":"https://api.sandbox.namecheap.com/xml.response","credential":"namecheap-api","inputSchema":{"type":"object"},"outputSchema":{"type":"object"},"effect":"read","idempotency":"none"},
+    {"capability":"namecheap.api.domains-dns-get-hosts.v1","providerProfile":"com.namecheap.legacy-api","command":"namecheap.domains.dns.getHosts","productionEndpoint":"https://api.namecheap.com/xml.response","sandboxEndpoint":"https://api.sandbox.namecheap.com/xml.response","credential":"namecheap-api","inputSchema":{"type":"object"},"outputSchema":{"type":"object"},"effect":"read","idempotency":"none"},
+    {"capability":"namecheap.api.domains-dns-set-hosts.v1","providerProfile":"com.namecheap.legacy-api","command":"namecheap.domains.dns.setHosts","productionEndpoint":"https://api.namecheap.com/xml.response","sandboxEndpoint":"https://api.sandbox.namecheap.com/xml.response","credential":"namecheap-api","inputSchema":{"type":"object"},"outputSchema":{"type":"object"},"effect":"security-sensitive-write","idempotency":"caller-key"}
+  ],
+  "fileTransferTargets": [{"id":"namecheap-shared-hosting","protocol":"sftp","credential":"namecheap-sftp","allowedHostSuffixes":[".web-hosting.com",".namecheaphosting.com"],"port":21098,"rootPath":"public_html","operations":["probe","list","stat","upload"]}],
+  "setup": {"required":true,"entryFlow":"onboarding","flows":[
+    {"id":"onboarding","title":"Connect Namecheap and set bootstrap requirements","steps":[
+      {"id":"permissions","kind":"permission-summary","title":"Review zero-knowledge access and approval boundaries"},
+      {"id":"connect","kind":"oauth-connect","title":"Connect Namecheap MCP","connection":"namecheap-mcp","scopeSet":"complete-domain-surface"},
+      {"id":"requirements","kind":"form","title":"Business, domain, hosting, traffic, email, budget, renewal, and starter message","configurationKeys":["llmProvider","llmModel","businessDisplayName","preferredDomains","hostingNeeds","expectedTraffic","emailNeeded","maximumInitialBudget","autoRenew","starterMessage","hostingPlan","approvalMode"]},
+      {"id":"confirm","kind":"confirmation","title":"Activate Namecheap Infrastructure Engineer"}
+    ]},
+    {"id":"settings","title":"Namecheap infrastructure connections","steps":[
+      {"id":"hosting","kind":"form","title":"Secure Shared Hosting activation","configurationKeys":["hostingHost","hostingIPv4","namecheap-sftp"]},
+      {"id":"contact","kind":"form","title":"Secure registration contact","configurationKeys":["namecheap-contact"]},
+      {"id":"legacy","kind":"form","title":"Optional administrator-enabled legacy API","configurationKeys":["namecheap-api"]},
+      {"id":"disconnect","kind":"disconnect","title":"Disconnect Namecheap","connection":"namecheap-mcp"}
+    ]}
+  ]},
+  "webAccess": {"mode":"Allowlist","purpose":"Read official Namecheap Shared Hosting product details and support guidance.","rules":[
+    {"scheme":"https","host":"www.namecheap.com","pathPrefix":"/hosting/shared/","methods":["GET"],"protocol":"http","purpose":"Read current Shared Hosting plans and advertised pricing."},
+    {"scheme":"https","host":"www.namecheap.com","pathPrefix":"/support/knowledgebase/","methods":["GET"],"protocol":"http","purpose":"Read official activation and SFTP guidance."}
+  ]},
+  "ui": [{"kind":"personal-settings","id":"namecheap-infrastructure-settings","title":"Namecheap connections and secure hosting activation","flow":"settings"}],
+  "catalog": {"summary":"Bootstraps and operates Namecheap domains, DNS, Shared Hosting, HTTPS, and a deterministic starter site.","category":"Infrastructure","role":{"key":"infrastructure-engineer","name":"Infrastructure Engineer"},"license":{"spdxId":"MIT"},"iconUrls":[],"roleAliases":["Namecheap Administrator","Domain and Hosting Engineer"],"keywords":["namecheap","domain","dns","hosting","ssl","sftp"],"documentationUrl":"README.md"}
+}
