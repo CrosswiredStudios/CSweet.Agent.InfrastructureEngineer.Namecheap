@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/CrosswiredStudios/CSweetAgentSdk/main/schemas/csweet-plugin.v2.schema.json",
   "manifestVersion": "2.0", "kind": "agent",
-  "id": "com.csweet.infrastructure-engineer.namecheap", "name": "Namecheap Infrastructure Engineer", "version": "0.1.0",
+  "id": "com.csweet.infrastructure-engineer.namecheap", "name": "Arjun Mehta", "version": "0.1.0",
   "publisher": { "id": "com.csweet", "name": "C-Sweet" },
   "rolePolicy": { "profile": "individual-contributor.v1", "declaredRoleKeys": ["infrastructure-engineer"], "specializationKeys": ["namecheap"] },
   "runtime": { "type": "dotnet-project", "projectPath": "src/CSweet.Agent.InfrastructureEngineer.Namecheap/CSweet.Agent.InfrastructureEngineer.Namecheap.csproj", "targetFramework": "net10.0", "defaultActivationMode": "Scheduled", "defaultTickFrequencySeconds": 86400, "supportsMultipleInstallations": true, "maximumConcurrentJobs": 1, "workspaceAccess": "None" },
@@ -95,5 +95,8 @@
     {"scheme":"https","host":"www.namecheap.com","pathPrefix":"/support/knowledgebase/","methods":["GET"],"protocol":"http","purpose":"Read official activation and SFTP guidance."}
   ]},
   "ui": [{"kind":"personal-settings","id":"namecheap-infrastructure-settings","title":"Namecheap connections and secure hosting activation","flow":"settings"}],
-  "catalog": {"summary":"Bootstraps and operates Namecheap domains, DNS, Shared Hosting, HTTPS, and a deterministic starter site.","category":"Infrastructure","role":{"key":"infrastructure-engineer","name":"Infrastructure Engineer"},"license":{"spdxId":"MIT"},"iconUrls":[],"roleAliases":["Namecheap Administrator","Domain and Hosting Engineer"],"keywords":["namecheap","domain","dns","hosting","ssl","sftp"],"documentationUrl":"README.md"}
+  "catalog": {
+    "imageUrl": "https://raw.githubusercontent.com/CrosswiredStudios/CSweet.Agent.InfrastructureEngineer.Namecheap/main/assets/branding/portrait-v1.jpg",
+    "companyLogoUrl": "https://raw.githubusercontent.com/CrosswiredStudios/CSweet.Agent.InfrastructureEngineer.Namecheap/main/assets/branding/csweet-icon.svg",
+    "accentColor": "#C46A32","summary":"Bootstraps and operates Namecheap domains, DNS, Shared Hosting, HTTPS, and a deterministic starter site.","category":"Infrastructure","role":{"key":"infrastructure-engineer","name":"Infrastructure Engineer"},"license":{"spdxId":"MIT"},"iconUrls":[],"roleAliases":["Namecheap Administrator","Domain and Hosting Engineer"],"keywords":["namecheap","domain","dns","hosting","ssl","sftp"],"documentationUrl":"README.md"}
 }
