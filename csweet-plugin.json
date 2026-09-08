@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/CrosswiredStudios/CSweetAgentSdk/main/schemas/csweet-plugin.v2.schema.json",
   "manifestVersion": "2.0", "kind": "agent",
-  "id": "com.csweet.infrastructure-engineer.namecheap", "name": "Arjun Mehta", "version": "0.1.0",
+  "id": "com.csweet.infrastructure-engineer.namecheap", "name": "Arjun Mehta", "version": "0.2.0",
   "publisher": { "id": "com.csweet", "name": "C-Sweet" },
   "rolePolicy": { "profile": "individual-contributor.v1", "declaredRoleKeys": ["infrastructure-engineer"], "specializationKeys": ["namecheap"] },
   "runtime": { "type": "dotnet-project", "projectPath": "src/CSweet.Agent.InfrastructureEngineer.Namecheap/CSweet.Agent.InfrastructureEngineer.Namecheap.csproj", "targetFramework": "net10.0", "defaultActivationMode": "Scheduled", "defaultTickFrequencySeconds": 86400, "supportsMultipleInstallations": true, "maximumConcurrentJobs": 1, "workspaceAccess": "None" },
@@ -13,6 +13,11 @@
     { "name": "agent.configuration.update.v1", "description": "Validates platform-owned settings updates.", "inputSchema": { "type": "object" }, "outputSchema": { "type": "object" }, "executionTimeoutSeconds": 30, "idempotency": "caller-key", "riskClass": "standard" }
   ],
   "requires": [
+    {"name": "work.calendar.read.v1", "scope": "organization", "purpose": "Operate the business calendar within event ownership and reporting authority."},
+    {"name": "work.calendar.create.v1", "scope": "organization", "purpose": "Operate the business calendar within event ownership and reporting authority."},
+    {"name": "work.calendar.update.v1", "scope": "organization", "purpose": "Operate the business calendar within event ownership and reporting authority."},
+    {"name": "work.calendar.cancel.v1", "scope": "organization", "purpose": "Operate the business calendar within event ownership and reporting authority."},
+    {"name": "work.calendar.schedule.v1", "scope": "organization", "purpose": "Operate the business calendar within event ownership and reporting authority."},
     { "name": "platform.infrastructure.environment.read.v1", "purpose": "Open the canonical Namecheap environment." },
     { "name": "platform.infrastructure.state.write.v1", "purpose": "Persist desired and observed state revisions." },
     { "name": "platform.infrastructure.change.propose.v1", "purpose": "Create exact hash-bound provider change approvals." },
@@ -28,7 +33,7 @@
     { "name": "work.personal-todo.release.v1", "purpose": "Release interrupted work." },
     { "name": "web.fetch.v1", "purpose": "Read allowlisted official Namecheap hosting pricing and guidance." }
   ],
-  "events": { "subscribes": ["com.csweet.agent.onboarded.v1", "com.csweet.work.personal-todo.available.v1"] },
+  "events": { "subscribes": ["com.csweet.calendar.reminder-due.v1", "com.csweet.agent.onboarded.v1", "com.csweet.work.personal-todo.available.v1"] },
   "configuration": [
     { "key": "llmProvider", "type": "llmprovider", "label": "Language model provider", "required": true },
     { "key": "llmModel", "type": "llmmodel", "label": "Language model", "required": true, "dependsOnFieldKey": "llmProvider" },

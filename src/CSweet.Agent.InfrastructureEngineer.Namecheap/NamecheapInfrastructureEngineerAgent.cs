@@ -25,7 +25,7 @@ public sealed partial class NamecheapInfrastructureEngineerAgent : CSweetAgentBa
     public const string PublicSiteVerify = "namecheap.public-site.verify.v1";
 
     public override string AgentId => "com.csweet.infrastructure-engineer.namecheap";
-    public override string Version => "0.1.0";
+    public override string Version => "0.2.0";
 
     protected override AgentConfigurationBuilder Configure(AgentConfigurationBuilder builder) => builder
         .LlmProvider("llmProvider", "Language model provider", true,
