@@ -36,7 +36,7 @@ dotnet run --project src/CSweet.Agent.InfrastructureEngineer.Namecheap -- --self
 ```
 
 The unit tests need no provider credentials. Live acceptance requires an explicitly configured test
-organization and Namecheap account. Built with `CSweet.Agent.SDK` 3.27.0.
+organization and Namecheap account. Built with `CSweet.Agent.SDK` 3.40.0.
 
 
 ## Business calendar
