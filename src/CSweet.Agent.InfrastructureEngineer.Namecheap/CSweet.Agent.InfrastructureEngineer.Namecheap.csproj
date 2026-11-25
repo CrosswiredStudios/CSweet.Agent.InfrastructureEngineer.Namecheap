@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><OutputType>Exe</OutputType><Version>0.3.1</Version></PropertyGroup>
+  <PropertyGroup><OutputType>Exe</OutputType><Version>0.3.2</Version></PropertyGroup>
   <ItemGroup><PackageReference Include="CSweet.Agent.SDK" Version="3.65.0" /></ItemGroup>
   <ItemGroup><EmbeddedResource Include="Assets\Starter\index.template.html" /></ItemGroup>
 </Project>

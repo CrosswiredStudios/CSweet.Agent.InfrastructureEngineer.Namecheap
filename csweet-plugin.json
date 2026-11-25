@@ -4,7 +4,7 @@
   "kind": "agent",
   "id": "com.csweet.infrastructure-engineer.namecheap",
   "name": "Arjun Mehta",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "publisher": {
     "id": "com.csweet",
     "name": "C-Sweet"
